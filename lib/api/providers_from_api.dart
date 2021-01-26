@@ -1,23 +1,30 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:reliance_app/constants/messages.dart';
 import 'package:reliance_app/model/provider_model.dart';
 import 'package:reliance_app/utils/auth_exception.dart';
 import 'package:reliance_app/utils/error_util.dart';
+
 import 'base_api.dart';
 
 class ProviderFromApi extends BaseAPI {
-  Future getOneFromApi(int id) async {
+  //get all providers states
+  Future getAllStatesFromApi() async {
     String token = getIdToken();
     try {
-      var res = await dio.get("$baseUrl/providers/$id",
+      var res = await dio.get("$baseUrl/states/",
           options: defaultOptions.merge(headers: {'Authorization': 'Bearer $token'}));
 
       switch (res.statusCode) {
         case SERVER_OKAY:
           try {
-            return ProvidersModel.fromJson(res.data);
+            List<StatesModel> list = [];
+            res.data.forEach((v) {
+              list.add(new StatesModel.fromJson(v));
+            });
+            return list;
           } catch (e) {
             throw new AuthException("Server is currently under maintenance, Try again later");
           }
@@ -30,7 +37,36 @@ class ProviderFromApi extends BaseAPI {
     }
   }
 
-  Future getAllFromApi() async {
+  //get all providers types
+  Future getAllProviderTypesFromApi() async {
+    String token = getIdToken();
+    try {
+      var res = await dio.get("$baseUrl/provider-types/",
+          options: defaultOptions.merge(headers: {'Authorization': 'Bearer $token'}));
+      switch (res.statusCode) {
+        case SERVER_OKAY:
+          try {
+            List<ProviderType> list = [];
+            res.data.forEach((v) {
+              list.add(new ProviderType.fromJson(v));
+            });
+            return list;
+          } catch (e) {
+            throw new AuthException("Server is currently under maintenance, Try again later");
+          }
+          break;
+        default:
+          throw AuthException(res.data["message"]) ?? "Unknown Error";
+      }
+    } catch (e) {
+      print(e);
+
+      throw AuthException(DioErrorUtil.handleError(e));
+    }
+  }
+
+  //get all providers
+  Future getAllProvidersFromApi() async {
     String token = getIdToken();
     try {
       var res = await dio.get("$baseUrl/providers",
@@ -56,12 +92,12 @@ class ProviderFromApi extends BaseAPI {
     }
   }
 
+  //create a provider
   Future createFromApi(Map data) async {
     String token = getIdToken();
     try {
       var res = await dio.post("$baseUrl/providers",
           data: data, options: defaultOptions.merge(headers: {'Authorization': 'Bearer $token'}));
-      print(res.statusCode);
       switch (res.statusCode) {
         case SERVER_OKAY:
           try {
@@ -78,11 +114,13 @@ class ProviderFromApi extends BaseAPI {
     }
   }
 
+  //update all provider fields
   Future updateFromApi(Map data, int id) async {
     String token = getIdToken();
     try {
       var res = await dio.put("$baseUrl/providers/$id",
           data: data, options: defaultOptions.merge(headers: {'Authorization': 'Bearer $token'}));
+      print(res.data);
 
       switch (res.statusCode) {
         case SERVER_OKAY:
@@ -100,15 +138,25 @@ class ProviderFromApi extends BaseAPI {
     }
   }
 
+  //upload image to the server
   Future uploadImage(List<File> images, int id) async {
-    var data = [];
-    images.forEach((element) {
-      String fileName = element.path.split('/').last;
-      data.add(MultipartFile.fromFile(element.path, filename: fileName));
-    });
     String token = getIdToken();
-    FormData formData = FormData.fromMap(
-        {"ref": "provider", "field": "images", "refId": id.toString(), "files": data});
+
+    var formData = FormData();
+    if (images == null || images.isEmpty) {
+      return;
+    }
+    for (File image in images) {
+      formData.files.add(MapEntry("files",
+          MultipartFile.fromFileSync("${image.path}", filename: image.path.split('/').last)));
+    }
+    //Add all fields to formData
+    formData.fields.addAll([
+      MapEntry("ref", "provider"),
+      MapEntry("field", 'images'),
+      MapEntry("refId", id.toString())
+    ]);
+
     try {
       var res = await dio.post("$baseUrl/upload/",
           data: formData,
@@ -117,9 +165,10 @@ class ProviderFromApi extends BaseAPI {
               validateStatus: (status) => status < 500,
               headers: {'Authorization': 'Bearer $token'}));
 
-      print(res.data);
       switch (res.statusCode) {
         case SERVER_OKAY:
+          print("Images Uploaded");
+
           try {
             return "Success";
           } catch (e) {

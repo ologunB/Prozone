@@ -1,62 +1,7 @@
-List<String> nigeriaStates = [
-  "Abia",
-  "Adamawa",
-  "Akwa Ibom",
-  "Anambra",
-  "Bauchi",
-  "Bayelsa",
-  "Benue",
-  "Borno",
-  "Cross River",
-  "Delta",
-  "Ebonyi",
-  "Edo",
-  "Ekiti",
-  "Abuja",
-  "FCT",
-  "Enugu",
-  "Gombe",
-  "Imo",
-  "Jigawa",
-  "Kaduna",
-  "Kano",
-  "Katsina",
-  "Kebbi",
-  "Kogi",
-  "Kwara",
-  "Lagos",
-  "Nasarawa",
-  "Niger",
-  "Ogun",
-  "Ondo",
-  "Osun",
-  "Oyo",
-  "Plateau",
-  "Rivers",
-  "Sokoto",
-  "Taraba",
-  "Yobe",
-  "Zamfara",
-];
-List<String> providerTypes = [
-  "Hospital",
-  "Gym",
-  "Spa",
-  "Optical Centre",
-  "Pharmacy",
-  "Dental Clinic",
-  "Laboratory"
-];
-List<String> providerTypess = [
-  "All",
-  "Hospital",
-  "Gym",
-  "Spa",
-  "Optical Centre",
-  "Pharmacy",
-  "Dental Clinic",
-  "Laboratory"
-];
+import 'package:reliance_app/model/provider_model.dart';
+
+List<StatesModel> nigeriaStates;
+List<ProviderType> allProviderTypes;
 
 String greeting() {
   var hour = DateTime.now().hour;

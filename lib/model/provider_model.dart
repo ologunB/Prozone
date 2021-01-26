@@ -8,7 +8,7 @@ class ProvidersModel {
   ProviderType providerType;
   String createdAt;
   String updatedAt;
-  ProviderType state;
+  StatesModel state;
   List<Images> images;
 
   ProvidersModel(
@@ -32,10 +32,10 @@ class ProvidersModel {
     address = json['address'];
     activeStatus = json['active_status'];
     providerType =
-        json['provider_type'] != null ? new ProviderType.fromJson(json['provider_type']) : null;
+    json['provider_type'] != null ? new ProviderType.fromJson(json['provider_type']) : null;
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    state = json['state'] != null ? new ProviderType.fromJson(json['state']) : null;
+    state = json['state'] != null ? new StatesModel.fromJson(json['state']) : null;
     if (json['images'] != null) {
       images = new List<Images>.empty(growable: true);
       json['images'].forEach((v) {
@@ -76,6 +76,31 @@ class ProviderType {
   ProviderType({this.id, this.name, this.createdAt, this.updatedAt});
 
   ProviderType.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['name'] = this.name;
+    data['created_at'] = this.createdAt;
+    data['updated_at'] = this.updatedAt;
+    return data;
+  }
+}
+
+class StatesModel {
+  int id;
+  String name;
+  String createdAt;
+  String updatedAt;
+
+  StatesModel({this.id, this.name, this.createdAt, this.updatedAt});
+
+  StatesModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     createdAt = json['created_at'];

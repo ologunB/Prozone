@@ -1,51 +1,69 @@
+import 'dart:io';
+
 import 'package:reliance_app/api/providers_from_api.dart';
+import 'package:reliance_app/constants/consts.dart';
 import 'package:reliance_app/model/provider_model.dart';
 import 'package:reliance_app/utils/auth_exception.dart';
 
 import '../locator.dart';
 import 'base_vm.dart';
-import 'dart:io';
 
 class ProvidersViewModel extends BaseModel {
   final ProviderFromApi _providerFromApi = locator<ProviderFromApi>();
   List<ProvidersModel> providersList;
+  List<ProviderType> providerTypesList;
+  List<StatesModel> statesList;
   ProvidersModel providerData;
   String error;
 
-  Future getOneProvider(int id) async {
+  //get all providers data from home screen
+  Future getAllProvidersData() async {
     setBusy(true);
     try {
-      var result = await _providerFromApi.getOneFromApi(id);
-      if (result is ProvidersModel) {
-        providerData = result;
-        setBusy(false);
-        notifyListeners();
+      var providersResult = await _providerFromApi.getAllProvidersFromApi();
+      if (providersResult is List) {
+        //Get list of available providers
+        providersList = providersResult;
+        try {
+          var statesResult = await _providerFromApi.getAllStatesFromApi();
+          if (statesResult is List) {
+            //Get list of available states
+            statesList = statesResult;
+            nigeriaStates = statesResult;
+            try {
+              var result = await _providerFromApi.getAllProviderTypesFromApi();
+              if (result is List) {
+                //Get list of available providers types
+                setBusy(false);
+                providerTypesList = result;
+                allProviderTypes = result;
+                notifyListeners();
+              }
+            } on AuthException catch (e) {
+              setBusy(false);
+              providersList = null;
+              statesList = null;
+              error = e.message;
+              notifyListeners();
+            }
+
+            notifyListeners();
+          }
+        } on AuthException catch (e) {
+          setBusy(false);
+          providersList = null;
+          error = e.message;
+          notifyListeners();
+        }
       }
     } on AuthException catch (e) {
       setBusy(false);
       error = e.message;
-       await dialog.showDialog(title: "Error!", description: e.message, buttonTitle: "Close");
       notifyListeners();
     }
   }
 
-  Future getAllProviders() async {
-    setBusy(true);
-    try {
-      var result = await _providerFromApi.getAllFromApi();
-      if (result is List) {
-        providersList = result;
-        setBusy(false);
-        notifyListeners();
-      }
-    } on AuthException catch (e) {
-      setBusy(false);
-      error = e.message;
-    //  await dialog.showDialog(title: "Error!", description: e.message, buttonTitle: "Close");
-      notifyListeners();
-    }
-  }
-
+  //create a provider
   Future createProvider(Map data) async {
     setBusy(true);
     try {
@@ -64,9 +82,9 @@ class ProvidersViewModel extends BaseModel {
     }
   }
 
+  //update a provider
   Future updateDetails(Map data, List<File> selectedPictures, int id) async {
     setBusy(true);
-
     try {
       //if no image , then proceed to update the text fields
       if (selectedPictures.isEmpty) {
@@ -74,6 +92,7 @@ class ProvidersViewModel extends BaseModel {
         if (updateResult == "Success") {
           setBusy(false);
           notifyListeners();
+          getAllProvidersData();
           await dialog.showDialog(
               title: "Success", description: "The details have been updated", buttonTitle: "Close");
           return "Success";

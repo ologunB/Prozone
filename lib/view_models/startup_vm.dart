@@ -4,7 +4,7 @@ import 'base_vm.dart';
 
 class StartUpViewModel extends BaseModel {
   Future<void> isLoggedIn() async {
-    Future.delayed(Duration(seconds: 3))
+    Future.delayed(Duration(seconds: 2))
         .then((value) => navigate.navigateToReplacing(MainLayoutView));
     notifyListeners();
   }

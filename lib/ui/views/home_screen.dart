@@ -24,7 +24,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int selectedProvider = 0;
+  int selectedProvider = 100;
   TextEditingController searchController = TextEditingController();
   String searchType = "Name";
 
@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(statusBarColor: Styles.colorBlue.withOpacity(.5)));
     return BaseView<ProvidersViewModel>(onModelReady: (model) {
-      model.getAllProviders();
+      model.getAllProvidersData();
     }, builder: (context, model, _) {
       if (doOnce == 0) {
         if (model.providersList == null) {
@@ -61,7 +61,8 @@ class _HomeScreenState extends State<HomeScreen> {
       return RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () async {
-          model.getAllProviders();
+          //get all provider info again
+          model.getAllProvidersData();
         },
         child: GestureDetector(
           onTap: () => Util.offKeyboard(context),
@@ -168,30 +169,84 @@ class _HomeScreenState extends State<HomeScreen> {
                       verticalSpaceSmall,
                       sortedList == null
                           ? SizedBox()
-                          : Container(
+                          : Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () =>
+                                setState(() {
+                                  selectedProvider = 100;
+                                  if (model.providersList == null) {
+                                    sortedList = null;
+                                  } else {
+                                    filter = "None";
+                                    sortedList = [];
+                                    sortedList = sortedByType(model.providersList);
+                                    setState(() {});
+                                  }
+                                }),
+                            child: Container(
+                                alignment: Alignment.center,
+                                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                                margin: EdgeInsets.only(top: 6, bottom: 6, right: 10),
+                                decoration: BoxDecoration(
+                                    color: selectedProvider == 100 ? Styles.colorBlue : null,
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    selectedProvider == 100
+                                        ? Container(
+                                        height: 6,
+                                        width: 6,
+                                        margin: EdgeInsets.only(right: 10, left: 5),
+                                        decoration: BoxDecoration(
+                                            color: Styles.appCanvasYellow,
+                                            borderRadius: BorderRadius.circular(3)))
+                                        : SizedBox(),
+                                    Text(
+                                      "All" +
+                                          "${selectedProvider == 100
+                                              ? " (${sortedList.length})"
+                                              : ""}",
+                                      style: GoogleFonts.nunito(
+                                          fontSize: 14,
+                                          color: selectedProvider == 100
+                                              ? Styles.colorWhite
+                                              : Colors.white54,
+                                          fontWeight: selectedProvider == 100
+                                              ? FontWeight.bold
+                                              : null),
+                                    ),
+                                  ],
+                                )),
+                          ),
+                          Expanded(
+                            child: Container(
                               height: 50,
                               child: ListView.builder(
-                                  itemCount: providerTypess.length,
+                                  itemCount: allProviderTypes.length,
                                   scrollDirection: Axis.horizontal,
                                   shrinkWrap: true,
                                   itemBuilder: (context, index) {
                                     return GestureDetector(
-                                      onTap: () => setState(() {
-                                        selectedProvider = index;
-                                        if (model.providersList == null) {
-                                          sortedList = null;
-                                        } else {
-                                          filter = "None";
-                                          sortedList = [];
-                                          sortedList = sortedByType(model.providersList);
-                                          setState(() {});
-                                        }
-                                      }),
+                                      onTap: () =>
+                                          setState(() {
+                                            selectedProvider = index;
+                                            if (model.providersList == null) {
+                                              sortedList = null;
+                                            } else {
+                                              filter = "None";
+                                              sortedList = [];
+                                              sortedList = sortedByType(model.providersList);
+                                              setState(() {});
+                                            }
+                                          }),
                                       child: Container(
                                           alignment: Alignment.center,
-                                          padding:
-                                              EdgeInsets.symmetric(vertical: 4, horizontal: 20),
-                                          margin: EdgeInsets.only(top: 6, bottom: 6, right: 10),
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 4, horizontal: 20),
+                                          margin:
+                                          EdgeInsets.only(top: 6, bottom: 6, right: 10),
                                           decoration: BoxDecoration(
                                               color: selectedProvider == index
                                                   ? Styles.colorBlue
@@ -202,16 +257,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                             children: [
                                               selectedProvider == index
                                                   ? Container(
-                                                      height: 6,
-                                                      width: 6,
-                                                      margin: EdgeInsets.only(right: 10, left: 5),
-                                                      decoration: BoxDecoration(
-                                                          color: Styles.appCanvasYellow,
-                                                          borderRadius: BorderRadius.circular(3)))
+                                                  height: 6,
+                                                  width: 6,
+                                                  margin:
+                                                  EdgeInsets.only(right: 10, left: 5),
+                                                  decoration: BoxDecoration(
+                                                      color: Styles.appCanvasYellow,
+                                                      borderRadius:
+                                                      BorderRadius.circular(3)))
                                                   : SizedBox(),
                                               Text(
-                                                providerTypess[index] +
-                                                    "${selectedProvider == index ? " (${sortedList.length})" : ""}",
+                                                allProviderTypes[index].name +
+                                                    "${selectedProvider == index ? " (${sortedList
+                                                        .length})" : ""}",
                                                 style: GoogleFonts.nunito(
                                                     fontSize: 14,
                                                     color: selectedProvider == index
@@ -226,6 +284,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     );
                                   }),
                             ),
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),
@@ -235,7 +296,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "All " + plurals(providerTypess[selectedProvider]),
+                        "All ${selectedProvider == 100 ? "Providers" : plurals(
+                            allProviderTypes[selectedProvider].name)}",
                         style: GoogleFonts.nunito(
                             fontSize: 18, color: Styles.colorBlack, fontWeight: FontWeight.bold),
                       ),
@@ -301,7 +363,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                           verticalSpaceMedium,
                                           Text(
-                                            "Unfortunately, We do not have \n ${plurals(providerTypess[selectedProvider])} yet.",
+                                            "Unfortunately, We do not have \n ${plurals(
+                                                allProviderTypes[selectedProvider].name)} yet.",
                                             textAlign: TextAlign.center,
                                             style: GoogleFonts.nunito(
                                                 fontSize: 18,
@@ -404,8 +467,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         color: Styles.colorBlack),
                                                                   ),
                                                             Text(
-                                                              sortedList[index].address +
-                                                                      ", " +
+                                                              sortedList[index].address.toString() +
+                                                                  ", " +
                                                                       sortedList[index]
                                                                           .state
                                                                           .name ??
@@ -434,30 +497,42 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<ProvidersModel> sortedByType(List<ProvidersModel> list) {
-    if (providerTypess[selectedProvider] == "All") {
-      return list;
-    }
     List<ProvidersModel> _sorted = [];
-    if (filter == "None") {
-      list.forEach((element) {
-        if (element.providerType == null) {
-          return;
-        } else if (element.providerType.name.toLowerCase() ==
-            providerTypess[selectedProvider].toLowerCase()) {
-          _sorted.add(element);
-        }
-      });
+
+    if (selectedProvider == 100) {
+      if (filter == "None") {
+        return list;
+      } else {
+        list.forEach((element) {
+          if (element.activeStatus.contains(filter)) {
+            _sorted.add(element);
+          }
+        });
+        return _sorted;
+      }
     } else {
-      list.forEach((element) {
-        if (element.providerType == null) {
-          return;
-        } else if (element.providerType.name.toLowerCase() ==
-                providerTypess[selectedProvider].toLowerCase() &&
-            element.activeStatus.contains(filter)) {
-          _sorted.add(element);
-        }
-      });
+      if (filter == "None") {
+        list.forEach((element) {
+          if (element.providerType == null) {
+            return;
+          } else if (element.providerType.name.toLowerCase() ==
+              allProviderTypes[selectedProvider].name.toLowerCase()) {
+            _sorted.add(element);
+          }
+        });
+      } else {
+        list.forEach((element) {
+          if (element.providerType == null) {
+            return;
+          } else if (element.providerType.name.toLowerCase() ==
+              allProviderTypes[selectedProvider].name.toLowerCase() &&
+              element.activeStatus.contains(filter)) {
+            _sorted.add(element);
+          }
+        });
+      }
     }
+
     return _sorted;
   }
 }

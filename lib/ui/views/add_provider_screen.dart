@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reliance_app/constants/consts.dart';
 import 'package:reliance_app/constants/styles.dart';
+import 'package:reliance_app/model/provider_model.dart';
 import 'package:reliance_app/ui/widgets/custom_button.dart';
 import 'package:reliance_app/ui/widgets/custom_textfield.dart';
 import 'package:reliance_app/ui/widgets/snackbar.dart';
@@ -17,7 +18,9 @@ class AddProviderScreen extends StatefulWidget {
 }
 
 class _AddProviderScreenState extends State<AddProviderScreen> {
-  String statusSelected, providerTypeSelected, stateSelected;
+  String statusSelected;
+  ProviderType providerTypeSelected;
+  StatesModel stateSelected;
   double ratingSelected = 0;
   TextEditingController nameController = TextEditingController();
   TextEditingController descController = TextEditingController();
@@ -103,15 +106,15 @@ class _AddProviderScreenState extends State<AddProviderScreen> {
                                               "rating": ratingSelected.floor(),
                                               "address": addressController.text,
                                               "active_status": statusSelected,
-                                              "provider_type": providerTypeSelected,
-                                              "state": stateSelected
+                                              "provider_type": providerTypeSelected.id.toString(),
+                                              "state": stateSelected.id.toString()
                                             };
                                             var result = await model.createProvider(data);
                                             if (result == "Success") {
                                               nameController.clear();
                                               descController.clear();
                                               addressController.clear();
-                                              ratingSelected = null;
+                                              ratingSelected = 3;
                                               statusSelected = null;
                                               providerTypeSelected = null;
                                               stateSelected = null;
@@ -225,7 +228,7 @@ class _AddProviderScreenState extends State<AddProviderScreen> {
                               border:
                                   Border.all(color: Styles.colorBlack.withOpacity(0.2), width: 2)),
                           padding: EdgeInsets.symmetric(horizontal: 4),
-                          child: DropdownButton<String>(
+                          child: DropdownButton<ProviderType>(
                             hint: Text(
                               "Select...",
                               style: GoogleFonts.nunito(
@@ -238,13 +241,13 @@ class _AddProviderScreenState extends State<AddProviderScreen> {
                             isExpanded: true,
                             iconEnabledColor: Styles.colorBlue,
                             dropdownColor: Styles.colorWhite,
-                            items: providerTypes.map((value) {
-                              return DropdownMenuItem<String>(
+                            items: allProviderTypes.map((value) {
+                              return DropdownMenuItem<ProviderType>(
                                 value: value,
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 5.0),
                                   child: Text(
-                                    value,
+                                    value.name,
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -273,7 +276,7 @@ class _AddProviderScreenState extends State<AddProviderScreen> {
                               border:
                                   Border.all(color: Styles.colorBlack.withOpacity(0.2), width: 2)),
                           padding: EdgeInsets.symmetric(horizontal: 4),
-                          child: DropdownButton<String>(
+                          child: DropdownButton<StatesModel>(
                             hint: Text(
                               "Select...",
                               style: GoogleFonts.nunito(
@@ -287,12 +290,12 @@ class _AddProviderScreenState extends State<AddProviderScreen> {
                             iconEnabledColor: Styles.colorBlue,
                             dropdownColor: Styles.colorWhite,
                             items: nigeriaStates.map((value) {
-                              return DropdownMenuItem<String>(
+                              return DropdownMenuItem<StatesModel>(
                                 value: value,
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 5.0),
                                   child: Text(
-                                    value,
+                                    value.name,
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -303,7 +306,6 @@ class _AddProviderScreenState extends State<AddProviderScreen> {
                             }).toList(),
                             onChanged: (value) {
                               Util.offKeyboard(context);
-
                               stateSelected = value;
                               setState(() {});
                             },
