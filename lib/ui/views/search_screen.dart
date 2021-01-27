@@ -143,56 +143,63 @@ class _SearchScreenState extends State<SearchScreen> {
                                           child: sortedList[index].images.isEmpty
                                               ? Image.asset("images/placeholder.png")
                                               : CachedImage(sortedList[index].images[0].url)),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text(sortedList[index].name ?? "No name",
-                                                    style: GoogleFonts.nunito(
-                                                        fontSize: 14, fontWeight: FontWeight.bold)),
-                                                horizontalSpaceTiny,
-                                                sortedList[index].activeStatus.toLowerCase() ==
-                                                        "pending"
-                                                    ? Text(" - pending".toLowerCase(),
-                                                        style: GoogleFonts.nunito(
-                                                            fontSize: 12, color: Styles.colorGrey))
-                                                    : Icon(
-                                                        Icons.check_circle,
-                                                        color: Colors.lightGreen,
-                                                        size: 16,
-                                                      ),
-                                              ],
-                                            ),
-                                            Text(
-                                              sortedList[index].providerType.name ?? "No Type",
-                                              style: GoogleFonts.nunito(
-                                                  fontSize: 14,
-                                                  color: Styles.colorGrey,
-                                                  fontWeight: FontWeight.w600),
-                                            ),
-                                            sortedList[index].rating != null
-                                                ? RatingStar(
-                                                    sortedList[index].rating.toDouble(), 15)
-                                                : Text(
-                                                    "No rating yet",
-                                                    style: GoogleFonts.nunito(
-                                                        fontSize: 14, color: Styles.colorBlack),
-                                                  ),
-                                            Text(
-                                              sortedList[index].address +
-                                                      ", " +
-                                                      sortedList[index].state.name ??
-                                                  "No Address",
-                                              style: GoogleFonts.nunito(
-                                                  fontSize: 14,
-                                                  color: Styles.colorBlack,
-                                                  fontWeight: FontWeight.w600),
-                                            ),
-                                          ],
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(sortedList[index].name ?? "No name",
+                                                      style: GoogleFonts.nunito(
+                                                          fontSize: 14,
+                                                          fontWeight: FontWeight.bold)),
+                                                  horizontalSpaceTiny,
+                                                  sortedList[index].activeStatus.toLowerCase() ==
+                                                          "pending"
+                                                      ? Text(" - pending".toLowerCase(),
+                                                          style: GoogleFonts.nunito(
+                                                              fontSize: 12,
+                                                              color: Styles.colorGrey))
+                                                      : Icon(
+                                                          Icons.check_circle,
+                                                          color: Colors.lightGreen,
+                                                          size: 16,
+                                                        ),
+                                                ],
+                                              ),
+                                              Text(
+                                                sortedList[index].providerType.name ?? "No Type",
+                                                style: GoogleFonts.nunito(
+                                                    fontSize: 14,
+                                                    color: Styles.colorGrey,
+                                                    fontWeight: FontWeight.w600),
+                                              ),
+                                              sortedList[index].rating != null
+                                                  ? RatingStar(
+                                                      sortedList[index].rating.toDouble(), 15)
+                                                  : Text(
+                                                      "No rating yet",
+                                                      style: GoogleFonts.nunito(
+                                                          fontSize: 14, color: Styles.colorBlack),
+                                                    ),
+                                              Expanded(
+                                                child: Text(
+                                                  sortedList[index].address +
+                                                          ", " +
+                                                          sortedList[index].state.name ??
+                                                      "No Address",
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: GoogleFonts.nunito(
+                                                      fontSize: 14,
+                                                      color: Styles.colorBlack,
+                                                      fontWeight: FontWeight.w600),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       )
                                     ],
