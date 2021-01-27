@@ -431,7 +431,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                   sortedList[index]
                                                                               .activeStatus
                                                                               .toLowerCase() ==
-                                                                          " - pending"
+                                                                          "pending"
                                                                       ? Text(
                                                                           sortedList[index]
                                                                               .activeStatus
